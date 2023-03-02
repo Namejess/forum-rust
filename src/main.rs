@@ -1,12 +1,18 @@
 use crate::schema::messages;
-use actix_web::{get, App, HttpResponse, HttpServer, Responder};
+use actix_web::{delete, get, post, put, web, App, HttpResponse, HttpServer, Responder};
 use diesel::mysql::MysqlConnection;
-use diesel::prelude::*;
 use diesel::sql_types::{Integer, Unsigned};
 use dotenv::dotenv;
 use std::env;
 
+use diesel::{prelude::*, result::Error};
+use serde::{Deserialize, Serialize};
+
+// Définition du modèle de données
+mod models;
 mod schema;
+use models::{Message, NewMessage};
+use schema::messages::dsl::*;
 
 fn establish_connection() -> MysqlConnection {
     dotenv().ok();
@@ -16,21 +22,15 @@ fn establish_connection() -> MysqlConnection {
         .expect(&format!("Erreur de connexion à {}", database_url))
 }
 
-#[derive(Queryable)]
-struct Message {
-    id: Unsigned<Integer>,
-    content: String,
-    author: String,
+#[get("/")]
+async fn hello() -> impl Responder {
+    HttpResponse::Ok().json("Hello world!")
 }
 
-#[derive(Insertable)]
-#[table_name = "messages"]
-struct NewMessage<'a> {
-    content: &'a str,
-    author: &'a str,
-}
-
-#[tokio::main]
-async fn main() {
-    println!("Hello, world!");
+#[actix_rt::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| App::new().service(hello))
+        .bind("127.0.0.1:8001")?
+        .run()
+        .await
 }
