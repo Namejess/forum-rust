@@ -1,0 +1,6 @@
+CREATE TABLE messages (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    content TEXT NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
